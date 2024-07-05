@@ -9,7 +9,7 @@ jobs:
   check-for-updates:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Check for newer x64 Tor Browser release
         run: |
