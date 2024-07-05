@@ -19,11 +19,12 @@ jobs:
           )
           current=$(awk -F '=' '/TOR_VERSION_X64/{print $NF; exit}' Dockerfile | tr -d '"')
           dpkg --compare-versions "$latest" eq "$current" && update=0 || update=1
+          echo "current: $current, latest: $latest"
           echo "TB_X64_UPDATED=$update" >> $GITHUB_ENV
           echo "TB_X64_VERSION=$latest" >> $GITHUB_ENV
 
       - name: Update x64 to latest version and commit update
-        if: ${{ env.TB_X64_UPDATED == 0 }}
+        if: ${{ env.TB_X64_UPDATED == 1 }}
         run: |
           sed -i s/TOR_VERSION_X64=".*"/TOR_VERSION_X64=\"${{ env.TB_X64_VERSION }}\"/g Dockerfile
           git config --global user.name "github-runner[bot]"
@@ -41,11 +42,12 @@ jobs:
           )
           current=$(awk -F '=' '/TOR_VERSION_ARM64/{print $NF; exit}' Dockerfile | tr -d '"')
           dpkg --compare-versions $latest gt $current && update=0 || update=1
+          echo "current: $current, latest: $latest"
           echo "TB_ARM64_UPDATED=$update" >> $GITHUB_ENV
           echo "TB_ARM64_VERSION=$latest" >> $GITHUB_ENV
 
       - name: Update arm64 to latest version and commit update
-        if: ${{ env.TB_ARM64_UPDATED == 0 }}
+        if: ${{ env.TB_ARM64_UPDATED == 1 }}
         run: |
           sed -i s/TOR_VERSION_ARM64=".*"/TOR_VERSION_ARM64=\"${{ env.TB_ARM64_VERSION }}\"/g Dockerfile
           git config --global user.name "github-runner[bot]"
@@ -54,6 +56,6 @@ jobs:
           git commit -m "Updated Tor Browser arm64 version to ${{ env.TB_ARM64_VERSION }} " || echo
 
       - name: Commit any updates
-        if: ${{ env.TB_X64_UPDATED == 0 || env.TB_ARM64_UPDATED == 0 }}
+        if: ${{ env.TB_X64_UPDATED == 1 || env.TB_ARM64_UPDATED == 1 }}
         run: |
           git push origin ${GITHUB_REF##*/} -f
