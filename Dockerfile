@@ -9,8 +9,8 @@ ENV TOR_VERSION_ARM64="13.0.9"
 # automatic; passed in by Docker buildx
 ARG TARGETARCH
 # x64 Tor Browser official build
-ENV TOR_BINARY_X64="https://www.torproject.org/dist/torbrowser/${TOR_VERSION_X64}/tor-browser-linux64-${TOR_VERSION_X64}_ALL.tar.xz"
-ENV TOR_SIGNATURE_X64="https://www.torproject.org/dist/torbrowser/${TOR_VERSION_X64}/tor-browser-linux64-${TOR_VERSION_X64}_ALL.tar.xz.asc"
+ENV TOR_BINARY_X64="https://www.torproject.org/dist/torbrowser/${TOR_VERSION_X64}/tor-browser-linux-x86_64-${TOR_VERSION_X64}_ALL.tar.xz"
+ENV TOR_SIGNATURE_X64="https://www.torproject.org/dist/torbrowser/${TOR_VERSION_X64}/tor-browser-linux-x86_64-${TOR_VERSION_X64}_ALL.tar.xz.asc"
 ENV TOR_GPG_KEY_X64="https://openpgpkey.torproject.org/.well-known/openpgpkey/torproject.org/hu/kounek7zrdx745qydx6p59t9mqjpuhdf"
 ENV TOR_FINGERPRINT_X64="0xEF6E286DDA85EA2A4BA7DE684E2C6E8793298290"
 # arm64 Tor Browser unofficial build
@@ -49,15 +49,17 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
 
 # Verify GPG signature of the Tor Browser binary
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
+      echo "Running for amd64 architecture"; \
       curl -sSL "${TOR_GPG_KEY_X64}" | gpg --import - && \
       gpg --output ./tor.keyring --export "${TOR_FINGERPRINT_X64}" && \
-      gpgv --keyring ./tor.keyring "${TOR_SIGNATURE_X64##*/}" "${TOR_BINARY_X64##*/}"; \
+      gpgv --keyring ./tor.keyring "$(basename "${TOR_SIGNATURE_X64}")" "$(basename "${TOR_BINARY_X64}")"; \
     elif [ "$TARGETARCH" = "arm64" ]; then \
+      echo "Running for arm64 architecture"; \
       curl -sSL "${TOR_GPG_KEY_ARM64}" | gpg --import - && \
       gpg --output ./tor.keyring --export "${TOR_FINGERPRINT_ARM64}" && \
-      gpgv --keyring ./tor.keyring "${TOR_SIGNATURE_ARM64##*/}" "${TOR_BINARY_ARM64##*/}"; \
+      gpgv --keyring ./tor.keyring "$(basename "${TOR_SIGNATURE_ARM64}")" "$(basename "${TOR_BINARY_ARM64}")"; \
     else \
-      echo "CRITICAL: Architecture '${TARGETARCH}' not in [amd64, arm64]" && \
+      echo "CRITICAL: Architecture '${TARGETARCH}' not in [amd64, arm64]"; \
       exit 1; \
     fi
 
