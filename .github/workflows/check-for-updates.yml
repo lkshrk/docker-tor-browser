@@ -1,5 +1,9 @@
 name: Check for Tor Browser updates
 
+permissions:
+  contents: write
+  workflows: write
+
 on:
   schedule:
     - cron:  '0 0 * * 0'  # every sunday
