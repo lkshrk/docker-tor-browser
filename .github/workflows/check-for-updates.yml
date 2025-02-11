@@ -2,7 +2,7 @@ name: Check for Tor Browser updates
 
 permissions:
   contents: write
-  workflows: write
+  actions: write
 
 on:
   schedule:
